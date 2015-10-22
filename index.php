@@ -54,7 +54,7 @@ for ($i = 0; $i < count($cards); $i++) {
   echo "Card: " . $cards[$i]->{'id'} . " " . 
   $cards[$i]->{'name'} . " " . 
   $cards[$i]->{'idList'} . " " . 
-  $listarr[$cards[$i]->{'id'}] . "<br>";
+  $listarr[$cards[$i]->{'idList'}] . "<br>";
 }
 
 
