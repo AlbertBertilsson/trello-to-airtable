@@ -21,13 +21,14 @@ if ($_GET["debug"] != getenv("debug")) {
 
 echo "Debug paramater good!<br>";
 
-/*
-echo getenv('test-key');
-echo "<br>";
-while (list($var,$value) = each ($_SERVER)) {
-  echo "$var => $value <br>";
-}
-*/
+$trelloapi = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
+  "?lists=open&list_fields=name&fields=name,desc&key=" . getenv("trello-key") . 
+  "&token=" . getenv("trello-token");
+
+echo "Call: " . $trelloapi . "<br>";
+
+echo file_get_contents($trelloapi);
+
 ?>
   </body>
 </html>
