@@ -19,15 +19,26 @@ if ($_GET["debug"] != getenv("debug")) {
   exit(0);
 }
 
-echo "Debug paramater good!<br>";
+echo "Debug paramater good!<br><br>";
 
-$trelloapi = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
+
+$trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "?lists=open&list_fields=name&fields=name,desc&key=" . getenv("trello-key") . 
   "&token=" . getenv("trello-token");
 
-echo "Call: " . $trelloapi . "<br>";
+echo "Call: " . $trellolistsurl . "<br><br>";
 
-echo file_get_contents($trelloapi);
+echo file_get_contents($trellolistsurl);
+
+
+$trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
+  "/cards?fields=name,idList&key=" . getenv("trello-key") . 
+  "&token=" . getenv("trello-token");
+
+echo "Call: " . $trellocardsurl . "<br><br>";
+
+echo file_get_contents($trellocardsurl);
+
 
 ?>
   </body>
