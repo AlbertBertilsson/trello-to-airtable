@@ -30,8 +30,7 @@ echo "Call: " . $trellolistsurl . "<br><br>";
 
 $listsjson = file_get_contents($trellolistsurl);
 echo $listsjson . "<br><br>";
-$lists = json_decode($listsjson, true);
-echo $lists["lists"] . "<br><br>";
+$lists = json_decode($listsjson);
 for ($i = 0; $i < count($lists->{'lists'}); $i++) {
     echo "Lists: " . $lists->{'lists'}[$i]->{'id'} . " " . $lists->{'lists'}[$i]->{'name'} . "<br>";
 }
