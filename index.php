@@ -31,9 +31,13 @@ echo "Call: " . $trellolistsurl . "<br><br>";
 $listsjson = file_get_contents($trellolistsurl);
 echo $listsjson . "<br><br>";
 $lists = json_decode($listsjson);
+$listarr = array();
 for ($i = 0; $i < count($lists->{'lists'}); $i++) {
-    echo "Lists: " . $lists->{'lists'}[$i]->{'id'} . " " . $lists->{'lists'}[$i]->{'name'} . "<br>";
+  $listarr[$lists->{'lists'}[$i]->{'id'}] = $lists->{'lists'}[$i]->{'name'};
+  echo "Lists: " . $lists->{'lists'}[$i]->{'id'} . " " . $lists->{'lists'}[$i]->{'name'} . "<br>";
 }
+echo "<br><br>";
+echo var_dump($listarr);
 echo "<br><br>";
 
 
