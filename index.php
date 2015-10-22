@@ -1,3 +1,3 @@
 <?php
-echo "hej";
+echo getenv('test-key');
 ?>
