@@ -28,8 +28,14 @@ $trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 
 echo "Call: " . $trellolistsurl . "<br><br>";
 
-$lists = file_get_contents($trellolistsurl);
-echo $lists . "<br><br>";
+$listsjson = file_get_contents($trellolistsurl);
+echo $listsjson . "<br><br>";
+$lists = json_decode($listsjson, true);
+echo $lists["lists"] . "<br><br>";
+for ($i = 0; $i < count($lists->{'lists'}); $i++) {
+    echo "Lists: " . $lists->{'lists'}[$i]->{'id'} . " " . $lists->{'lists'}[$i]->{'name'} . "<br>";
+}
+echo "<br><br>";
 
 
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
@@ -38,8 +44,8 @@ $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 
 echo "Call: " . $trellocardsurl . "<br><br>";
 
-$cards = file_get_contents($trellocardsurl);
-echo $cards . "<br><br>";
+$cardsjson = file_get_contents($trellocardsurl);
+echo $cardsjson . "<br><br>";
 
 
 ?>
