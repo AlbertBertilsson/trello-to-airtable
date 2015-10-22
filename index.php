@@ -28,7 +28,8 @@ $trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 
 echo "Call: " . $trellolistsurl . "<br><br>";
 
-echo file_get_contents($trellolistsurl);
+$lists = file_get_contents($trellolistsurl);
+echo $lists . "<br><br>";
 
 
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
@@ -37,9 +38,11 @@ $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 
 echo "Call: " . $trellocardsurl . "<br><br>";
 
-echo file_get_contents($trellocardsurl);
+$cards = file_get_contents($trellocardsurl);
+echo $cards . "<br><br>";
 
 
 ?>
   </body>
 </html>
+
