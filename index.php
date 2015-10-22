@@ -10,7 +10,17 @@ if (strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) != "https") {
   exit(0);
 }
 
-echo "HTTPS good!<br>"
+echo "HTTPS good!<br>";
+
+
+if ($_GET["debug"] != getenv("debug")) {
+  echo "Debug parameter required!";
+  http_response_code(403);
+  exit(0);
+}
+
+echo "Debug paramater good!<br>";
+
 /*
 echo getenv('test-key');
 echo "<br>";
