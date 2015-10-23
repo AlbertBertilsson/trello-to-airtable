@@ -98,7 +98,7 @@ echo "Call: " . $trellocardsurl . "<br><br>";
 
 $cardsjson = file_get_contents($trellocardsurl);
 //echo $cardsjson . "<br><br>";
-//$cards = json_decode($cardsjson);
+$cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
   echo "Card: " . $cards[$i]->{'id'} . " " . 
   $cards[$i]->{'name'} . "<br>" .
