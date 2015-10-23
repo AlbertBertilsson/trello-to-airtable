@@ -14,6 +14,8 @@ if ($_GET["debug"] != getenv("debug")) $verbose = false;
 //Get airtable
 /*
 function get_airtable() {
+  global $verbose;
+
   $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?view=Active";
   //if ($verbose) echo "Call: " . $airtablelisturl . "<br><br>";
 
@@ -98,8 +100,8 @@ function log_airtable($line) {
       "Content-type: application/json"
   );
 
-  //$payload = '{"fields": {"Entry": "' . json_encode($line) . '","Time": "' . date('Y-m-d H:i:s') . '"}}';
-  $payload = '{"fields": {"Entry": "Test!","Time": "' . date('Y-m-d H:i:s') . '"}}';
+  $payload = '{"fields": {"Entry": ' . json_encode($line) . ',"Time": "' . date('Y-m-d H:i:s') . '"}}';
+  //$payload = '{"fields": {"Entry": "Test!","Time": "' . date('Y-m-d H:i:s') . '"}}';
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
   curl_setopt($ch, CURLOPT_POST, 1);
@@ -117,6 +119,8 @@ function log_airtable($line) {
 // Update airtable
 /*
 function update_airtable($id, $payload) {
+  global $verbose;
+
   $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents/" . $id;
   if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
 
