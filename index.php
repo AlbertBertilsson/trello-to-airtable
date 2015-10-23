@@ -13,7 +13,7 @@ if ($_GET["debug"] != getenv("debug")) $verbose = false;
 
 //Get airtable
 $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?view=Active";
-if ($verbose) echo "Call: " . $airtablelisturl . "<br><br>";
+//if ($verbose) echo "Call: " . $airtablelisturl . "<br><br>";
 
 $ch = curl_init($airtablelisturl);
 
@@ -91,6 +91,7 @@ function log_airtable($line) {
   $payload = '{"fields": {"Entry": $line,"Time": "' . date('Y-m-d H:i:s') . '"}}';
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
+  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
   curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
@@ -140,7 +141,7 @@ $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 
 //if ($verbose) echo $trellocardsurl . "<br><br>";
 $cardsjson = file_get_contents($trellocardsurl);
-if ($verbose) echo $cardsjson . "<br><br>";
+//if ($verbose) echo $cardsjson . "<br><br>";
 //$cards = json_decode($cardsjson);
 
 
