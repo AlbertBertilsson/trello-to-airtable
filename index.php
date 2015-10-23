@@ -11,7 +11,8 @@ $local = false;
 if (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]))
   if (strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) != "https")
     if (isset($_GET["debug"]))
-      if ($_GET["debug"] != getenv("debug")) $verbose = true;
+      if ($_GET["debug"] != getenv("debug"))
+        $verbose = true;
 
 if (isset($_SERVER["HTTP_HOST"]))
   if ($_SERVER["HTTP_HOST"] == "localhost:8080") {
@@ -104,7 +105,7 @@ function get_field($row, $field) {
 function log_airtable($line) {
   global $verbose, $local;
 
-  if ($local) {
+  if ($local || $verbose) {
     echo $line;
     return;
   }
@@ -220,7 +221,7 @@ for ($i = 0; $i < count($cards); $i++) {
           '}}';
           if ($verbose) echo $json . "<br><br>";
           $id = $rows[$j]->{'id'};
-          //update_airtable($id, $json);
+          update_airtable($id, $json);
         }
 
         $found = true;
