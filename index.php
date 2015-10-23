@@ -98,7 +98,8 @@ function log_airtable($line) {
       "Content-type: application/json"
   );
 
-  $payload = '{"fields": {"Entry": "' . json_encode($line) . '","Time": "' . date('Y-m-d H:i:s') . '"}}';
+  //$payload = '{"fields": {"Entry": "' . json_encode($line) . '","Time": "' . date('Y-m-d H:i:s') . '"}}';
+  $payload = '{"fields": {"Entry": "Test!","Time": "' . date('Y-m-d H:i:s') . '"}}';
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
   curl_setopt($ch, CURLOPT_POST, 1);
