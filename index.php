@@ -23,7 +23,7 @@ if ($_GET["debug"] != getenv("debug")) {
 echo "Debug paramater good!<br><br>";
 
 
-$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?limit=3&view=Main%20View";
+$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?view=Active";
 echo "Call: " . $airtablelisturl . "<br><br>";
 
 $ch = curl_init($airtablelisturl);
@@ -32,7 +32,6 @@ $atheaders = array(
     "Authorization: Bearer " . getenv("airtable-key")
 );
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-//curl_setopt($request, CURLOPT_CONNECTTIMEOUT, 15);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
 
 
