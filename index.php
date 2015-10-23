@@ -9,9 +9,9 @@ $verbose = false;
 $local = false;
 
 if (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]))
-  if (strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) != "https")
+  if (strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) == "https")
     if (isset($_GET["debug"]))
-      if ($_GET["debug"] != getenv("debug"))
+      if ($_GET["debug"] == getenv("debug"))
         $verbose = true;
 
 if (isset($_SERVER["HTTP_HOST"]))
