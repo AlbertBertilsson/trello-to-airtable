@@ -22,7 +22,7 @@ if ($_GET["debug"] != getenv("debug")) {
 
 echo "Debug paramater good!<br><br>";
 
-
+/*
 $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?view=Active";
 echo "Call: " . $airtablelisturl . "<br><br>";
 
@@ -46,9 +46,11 @@ if(curl_errno($ch))
 curl_close ($ch);
 
 echo $atresult . "<br><br>";
-
+*/
 
 /*
+//We are not using the definition of the trello lists,
+//hard coded them instead because there is not a one to one mapping anyway.
 $trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "?lists=open&list_fields=name&fields=name,desc&key=" . getenv("trello-key") . 
   "&token=" . getenv("trello-token");
@@ -68,7 +70,7 @@ for ($i = 0; $i < count($lists->{'lists'}); $i++) {
 */
 
 
-/*
+//Hard coded status for the trello lists
 $listarr = array(
   "55e58b8960a27158e41e7897" => "Meta data (ignore)",
   "55e5af5a7105ece0bb03d417" => "Open",
@@ -79,6 +81,19 @@ $listarr = array(
   "55e5ab9aa12abb4548ba60f9" => "Closed",
   "55e6b509ff8d0e999ce55d64" => "Closed",
   );
+
+//Get the cards
+function foo($arg_1, $arg_2, /* ..., */ $arg_n) {
+    echo "Example function.\n";
+    return $retval;
+}
+
+function get_cq($name) {
+  $matches = array();
+  preg_match('/\[CQ([\d]+)\]/', $name, $matches);
+
+  return $matches[1];
+}
 
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "/cards?fields=name,idList&key=" . getenv("trello-key") . 
@@ -91,11 +106,12 @@ $cardsjson = file_get_contents($trellocardsurl);
 //$cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
   echo "Card: " . $cards[$i]->{'id'} . " " . 
-  $cards[$i]->{'name'} . " " . "<br>" .
+  $cards[$i]->{'name'} . "<br>" .
+  get_cq($cards[$i]->{'name'}) . "<br>" .
   $cards[$i]->{'idList'} . " " . 
   $listarr[$cards[$i]->{'idList'}] . "<br><br>";
 }
-*/
+
 
 ?>
   </body>
