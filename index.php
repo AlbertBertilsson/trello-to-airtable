@@ -158,6 +158,7 @@ function update_airtable($id, $payload) {
   curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
+  if ($verbose) echo $atresult . '<br><br>';
 
   if(curl_errno($ch)) {
     echo "Failed to update row in airtable! Curl error: " . curl_error($ch);
