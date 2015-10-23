@@ -96,11 +96,8 @@ function log_airtable($line) {
 
   $atresult = curl_exec($ch);
 
-  if(curl_errno($ch))
-  {
+  if(curl_errno($ch)) {
     echo "Failed to get airtable! Curl error: " . curl_error($ch);
-    http_response_code(200);
-    exit(0);
   }
   curl_close ($ch);
 }
@@ -125,11 +122,8 @@ function update_airtable($id, $payload) {
 
   $atresult = curl_exec($ch);
 
-  if(curl_errno($ch))
-  {
+  if(curl_errno($ch)) {
     echo "Failed to get airtable! Curl error: " . curl_error($ch);
-    http_response_code(200);
-    exit(0);
   }
   curl_close ($ch);
 }
@@ -147,7 +141,7 @@ $cardsjson = file_get_contents($trellocardsurl);
 
 //Go through all trello cards and calculate changes
 $changes = 0;
-
+/*
 for ($i = 0; $i < count($cards); $i++) {
   if (!empty($listarr[$cards[$i]->{'idList'}])) {
     $found = false;
@@ -167,18 +161,6 @@ for ($i = 0; $i < count($cards); $i++) {
         if ($verbose) echo $json . "<br><br>";
         //update_airtable($id, $json);
 
-        //Update row
-        /*
-        echo $cards[$i]->{'id'} . '<br>';
-        if (get_title($cards[$i]->{'name'}) != get_field($row, 'Title'))
-          echo get_title($cards[$i]->{'name'}) . ' - ' . get_field($row, 'Title') . ' - Title missmatch!<br>';
-        if (get_cq($cards[$i]->{'name'}) != get_field($row, 'CQId'))
-          echo get_cq($cards[$i]->{'name'}) . ' - ' . get_field($row, 'CQId') . ' - CQ# missmatch!<br>';
-        if (get_inc($cards[$i]->{'name'}) != get_field($row, 'INC number'))
-          echo get_inc($cards[$i]->{'name'}) . ' - ' . get_field($row, 'INC number') . ' - INC# missmatch!<br>';
-        if ($listarr[$cards[$i]->{'idList'}] != get_field($row, 'Status'))
-          echo $listarr[$cards[$i]->{'idList'}] . ' - ' . get_field($row, 'Status') . ' - Status missmatch!<br>';
-        */
         $found = true;
         break;
       }
@@ -190,9 +172,10 @@ for ($i = 0; $i < count($cards); $i++) {
     }
   }
 }
-
+*/
 
 //Close cards
+/*
 for ($j = 0; $j < count($rows); $j++) {
   $found = false;
   $row = $rows[$j]->{'fields'};
@@ -211,7 +194,7 @@ for ($j = 0; $j < count($rows); $j++) {
     $id = $rows[$j]->{'id'};
   }
 }
-
+*/
 
 
 log_airtable('Integration done! ' . $changes . ' changes.');
