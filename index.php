@@ -23,13 +23,17 @@ if ($_GET["debug"] != getenv("debug")) {
 echo "Debug paramater good!<br><br>";
 
 
-$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?limit=3&view=Main%20View"
+$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?limit=3&view=Main%20View";
+echo "Call: " . $airtablelisturl . "<br><br>";
+
 $ch = curl_init('https://url.com/'.$airtablelisturl);
 $atheaders = array( 
     "Authorization: Bearer " . getenv("airtable-key");
 );
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+//curl_setopt($request, CURLOPT_CONNECTTIMEOUT, 15);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
+
 
 $atresult = curl_exec($ch);
 
@@ -41,7 +45,6 @@ if(curl_errno($ch))
 }
 curl_close ($ch);
 
-echo "Call: " . $airtablelisturl . "<br><br>";
 echo $atresult . "<br><br>";
 
 /*
@@ -62,6 +65,9 @@ for ($i = 0; $i < count($lists->{'lists'}); $i++) {
 //echo var_dump($listarr);
 //echo "<br><br>";
 */
+
+
+/*
 $listarr = array(
   "55e58b8960a27158e41e7897" => "Meta data (ignore)",
   "55e5af5a7105ece0bb03d417" => "Open",
@@ -88,7 +94,7 @@ for ($i = 0; $i < count($cards); $i++) {
   $cards[$i]->{'idList'} . " " . 
   $listarr[$cards[$i]->{'idList'}] . "<br><br>";
 }
-
+*/
 
 ?>
   </body>
