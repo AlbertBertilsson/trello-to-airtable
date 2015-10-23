@@ -48,7 +48,7 @@ $listarr = array(
   "55e58b8960a27158e41e789a" => "Fixed in Tealium",
   "55e58b8960a27158e41e789b" => "Waiting for verification",
   "55e5ab9aa12abb4548ba60f9" => "Closed",
-  "55e6b509ff8d0e999ce55d64 " => "Closed",
+  "55e6b509ff8d0e999ce55d64" => "Closed",
   );
 
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
