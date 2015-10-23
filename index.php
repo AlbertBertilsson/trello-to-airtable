@@ -124,11 +124,11 @@ $cardsjson = file_get_contents($trellocardsurl);
 //echo $cardsjson . "<br><br>";
 $cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
-  echo "TrelloId: " . $cards[$i]->{'id'} . " " . 
-  "CQ Number: " . get_cq($cards[$i]->{'name'}) . "<br>" .
-  "INC Number: " . get_inc($cards[$i]->{'name'}) . "<br>" .
-  "Title: " . get_title($cards[$i]->{'name'}) . "<br>" .
-  "Status: " . $listarr[$cards[$i]->{'idList'}] . "<br><br>";
+  echo $cards[$i]->{'id'} . ";" . 
+  get_cq($cards[$i]->{'name'}) . ";" .
+  get_inc($cards[$i]->{'name'}) . ";" .
+  get_title($cards[$i]->{'name'}) . ";" .
+  $listarr[$cards[$i]->{'idList'}] . "<br>";
 }
 
 
