@@ -22,6 +22,28 @@ if ($_GET["debug"] != getenv("debug")) {
 
 echo "Debug paramater good!<br><br>";
 
+
+$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?limit=3&view=Main%20View"
+$ch = curl_init('https://url.com/'.$airtablelisturl);
+$atheaders = array( 
+    "Authorization: Bearer " . getenv("airtable-key");
+);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
+
+$atresult = curl_exec($ch);
+
+if(curl_errno($ch))
+{
+  echo "Failed to get airtable! Curl error: " . curl_error($ch);
+  http_response_code(500);
+  exit(0);
+}
+curl_close ($ch);
+
+echo "Call: " . $airtablelisturl . "<br><br>";
+echo $atresult . "<br><br>";
+
 /*
 $trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "?lists=open&list_fields=name&fields=name,desc&key=" . getenv("trello-key") . 
@@ -58,8 +80,8 @@ $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 echo "Call: " . $trellocardsurl . "<br><br>";
 
 $cardsjson = file_get_contents($trellocardsurl);
-echo $cardsjson . "<br><br>";
-$cards = json_decode($cardsjson);
+//echo $cardsjson . "<br><br>";
+//$cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
   echo "Card: " . $cards[$i]->{'id'} . " " . 
   $cards[$i]->{'name'} . " " . "<br>" .
