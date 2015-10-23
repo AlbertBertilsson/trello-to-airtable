@@ -12,6 +12,7 @@ if ($_GET["debug"] != getenv("debug")) $verbose = false;
 
 
 //Get airtable
+/*
 function get_airtable() {
   $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?view=Active";
   //if ($verbose) echo "Call: " . $airtablelisturl . "<br><br>";
@@ -38,12 +39,13 @@ function get_airtable() {
   //if ($verbose) echo $atresult . "<br><br>";
   return $atresult;
 }
-
+*/
 //$atresult = get_airtable();
 
 
 
 //Hard coded status for the trello lists, only active lists are included
+/*
 $listarr = array(
   "55e5af5a7105ece0bb03d417" => "Open",
   "55e58b8960a27158e41e7898" => "Open",
@@ -81,7 +83,7 @@ function get_title($name) {
 
   return $name;
 }
-
+*/
 // Log to airtable
 function log_airtable($line) {
   $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/TrelloImportLog";
@@ -97,7 +99,7 @@ function log_airtable($line) {
   $payload = '{"fields": {"Entry": $line,"Time": "' . date('Y-m-d H:i:s') . '"}}';
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+  curl_setopt($ch, CURLOPT_POST, 1);
   curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
@@ -138,6 +140,7 @@ function update_airtable($id, $payload) {
 
 
 //Get the cards
+/*
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "/cards?fields=name,idList&key=" . getenv("trello-key") . 
   "&token=" . getenv("trello-token");
@@ -146,7 +149,7 @@ $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 $cardsjson = file_get_contents($trellocardsurl);
 //if ($verbose) echo $cardsjson . "<br><br>";
 $cards = json_decode($cardsjson);
-
+*/
 
 //Go through all trello cards and calculate changes
 $changes = 0;
