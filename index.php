@@ -87,7 +87,10 @@ $listarr = array(
 function get_cq($name) {
   $matches = array();
   preg_match('/\[CQ([\d]+)\]/', $name, $matches);
-  return $matches[1];
+  if (isset($matches[1]))
+    return "CQ" . $matches[1];
+
+  return "";
 }
 
 //Get the cards
@@ -103,7 +106,7 @@ $cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
   echo "Card: " . $cards[$i]->{'id'} . " " . 
   $cards[$i]->{'name'} . "<br>" .
-  //get_cq($cards[$i]->{'name'}) . "<br>" .
+  get_cq($cards[$i]->{'name'}) . "<br>" .
   $cards[$i]->{'idList'} . " " . 
   $listarr[$cards[$i]->{'idList'}] . "<br><br>";
 }
