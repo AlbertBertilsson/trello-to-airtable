@@ -86,6 +86,8 @@ function get_title($name) {
 */
 // Log to airtable
 function log_airtable($line) {
+  global $verbose;
+  
   $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/TrelloImportLog";
   if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
 
