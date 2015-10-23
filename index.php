@@ -29,13 +29,13 @@ echo "Call: " . $airtablelisturl . "<br><br>";
 $ch = curl_init($airtablelisturl);
 
 $atheaders = array( 
-    "Authorization: Bearer " . getenv("airtable-key");
+    "Authorization: Bearer " . getenv("airtable-key")
 );
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 //curl_setopt($request, CURLOPT_CONNECTTIMEOUT, 15);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
 
-/*
+
 $atresult = curl_exec($ch);
 
 if(curl_errno($ch))
@@ -47,7 +47,7 @@ if(curl_errno($ch))
 curl_close ($ch);
 
 echo $atresult . "<br><br>";
-*/
+
 
 /*
 $trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
