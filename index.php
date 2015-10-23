@@ -24,7 +24,7 @@ echo "Debug paramater good!<br><br>";
 
 
 //Get airtable
-$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?limit=3&view=Active";
+$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?view=Active";
 echo "Call: " . $airtablelisturl . "<br><br>";
 
 $ch = curl_init($airtablelisturl);
@@ -115,10 +115,9 @@ $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
   "/cards?fields=name,idList&key=" . getenv("trello-key") . 
   "&token=" . getenv("trello-token");
 
-echo "Call: " . $trellocardsurl . "<br><br>";
-
+//echo "Call: " . $trellocardsurl . "<br><br>";
 $cardsjson = file_get_contents($trellocardsurl);
-echo $cardsjson . "<br><br>";
+//echo $cardsjson . "<br><br>";
 $cards = json_decode($cardsjson);
 
 //Go through all trello cards and calculate changes
