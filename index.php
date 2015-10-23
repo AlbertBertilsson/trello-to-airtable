@@ -36,7 +36,7 @@ $atresult = curl_exec($ch);
 if(curl_errno($ch))
 {
   echo "Failed to get airtable! Curl error: " . curl_error($ch);
-  http_response_code(500);
+  http_response_code(200);
   exit(0);
 }
 curl_close ($ch);
