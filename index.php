@@ -300,7 +300,7 @@ for ($j = 0; $j < count($rows); $j++) {
       $changes++;
       //Set status closed
       $id = $rows[$j]->{'id'};
-      update_airtable($id, {"fields": {"Status": "Closed"}});
+      update_airtable($id, '{"fields": {"Status": "Closed"}}');
     }
   }
 }
