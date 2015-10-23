@@ -140,6 +140,8 @@ function log_airtable($line) {
 function update_airtable($id, $payload) {
   global $verbose, $local;
 
+  if ($local) return;
+
   $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents/" . $id;
   if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
 
@@ -158,7 +160,37 @@ function update_airtable($id, $payload) {
   $atresult = curl_exec($ch);
 
   if(curl_errno($ch)) {
-    echo "Failed to get airtable! Curl error: " . curl_error($ch);
+    echo "Failed to update row in airtable! Curl error: " . curl_error($ch);
+  }
+  curl_close ($ch);
+}
+
+
+// Update airtable
+function create_airtable($payload) {
+  global $verbose, $local;
+
+  if ($local) return;
+
+  $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents";
+  if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
+
+  $ch = curl_init($airtablelogurl);
+
+  $atheaders = array( 
+      "Authorization: Bearer " . getenv("airtable-key"),
+      "Content-type: application/json"
+  );
+
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
+  curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+
+  $atresult = curl_exec($ch);
+
+  if(curl_errno($ch)) {
+    echo "Failed to create row in airtable! Curl error: " . curl_error($ch);
   }
   curl_close ($ch);
 }
@@ -179,6 +211,21 @@ function get_trello() {
   return $cardsjson;
 }
 
+function card_to_row_json($card) {
+  global $verbose, $listarr;
+
+  $json = '{"fields": {' .
+    '"TrelloId": "'. $card->{'id'} .'",' . 
+    '"Title": '. json_encode(get_title($card->{'name'})) .',' . 
+    '"CQId": '. json_encode(get_cq($card->{'name'})) .',' . 
+    '"INC number": '. json_encode(get_inc($card->{'name'})) .',' . 
+    '"Status": '. json_encode($listarr[$card->{'idList'}]) . 
+    '}}';
+
+  if ($verbose) echo $json . "<br><br>";
+
+  return $json;
+}
 
 
 $cardsjson = get_trello();
@@ -212,14 +259,7 @@ for ($i = 0; $i < count($cards); $i++) {
         if ($updated) {
           $changes++;
 
-          $json = '{"fields": {' .
-          '"TrelloId": "'. $cards[$i]->{'id'} .'",' . 
-          '"Title": '. json_encode(get_title($cards[$i]->{'name'})) .',' . 
-          '"CQId": '. json_encode(get_cq($cards[$i]->{'name'})) .',' . 
-          '"INC number": '. json_encode(get_inc($cards[$i]->{'name'})) .',' . 
-          '"Status": '. json_encode($listarr[$cards[$i]->{'idList'}]) . 
-          '}}';
-          if ($verbose) echo $json . "<br><br>";
+          $json = card_to_row_json($cards[$i]);
           $id = $rows[$j]->{'id'};
           update_airtable($id, $json);
         }
@@ -231,8 +271,10 @@ for ($i = 0; $i < count($cards); $i++) {
 
     if (!$found) {
       if ($verbose) echo 'New card: ' . $cards[$i]->{'id'} . '<br>';
-      $changes++;
-      //Create row
+        $changes++;
+
+        $json = card_to_row_json($cards[$i]);
+        create_airtable($json);
     }
   }
 }
