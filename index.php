@@ -25,7 +25,7 @@ echo "Debug paramater good!<br><br>";
 
 $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?limit=3&view=Main%20View";
 echo "Call: " . $airtablelisturl . "<br><br>";
-
+/*
 $ch = curl_init($airtablelisturl);
 $atheaders = array( 
     "Authorization: Bearer " . getenv("airtable-key");
@@ -46,6 +46,7 @@ if(curl_errno($ch))
 curl_close ($ch);
 
 echo $atresult . "<br><br>";
+*/
 
 /*
 $trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
