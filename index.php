@@ -34,7 +34,7 @@ if(curl_errno($ch))
 }
 curl_close ($ch);
 
-if ($verbose) echo $atresult . "<br><br>";
+//if ($verbose) echo $atresult . "<br><br>";
 
 
 //Hard coded status for the trello lists, only active lists are included
@@ -76,55 +76,144 @@ function get_title($name) {
   return $name;
 }
 
+// Log to airtable
+function log_airtable($line) {
+  $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/TrelloImportLog";
+  if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
+
+  $ch = curl_init($airtablelogurl);
+
+  $atheaders = array( 
+      "Authorization: Bearer " . getenv("airtable-key"),
+      "Content-type: application/json"
+  );
+
+  $payload = '{"fields": {"Entry": $line,"Time": "' . date('Y-m-d H:i:s') . '"}}';
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
+  curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+
+  $atresult = curl_exec($ch);
+
+  if(curl_errno($ch))
+  {
+    echo "Failed to get airtable! Curl error: " . curl_error($ch);
+    http_response_code(200);
+    exit(0);
+  }
+  curl_close ($ch);
+}
+
+
+// Update airtable
+function update_airtable($id, $payload) {
+  $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents/" . $id;
+  if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
+
+  $ch = curl_init($airtablelogurl);
+
+  $atheaders = array( 
+      "Authorization: Bearer " . getenv("airtable-key"),
+      "Content-type: application/json"
+  );
+
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
+  curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+
+  $atresult = curl_exec($ch);
+
+  if(curl_errno($ch))
+  {
+    echo "Failed to get airtable! Curl error: " . curl_error($ch);
+    http_response_code(200);
+    exit(0);
+  }
+  curl_close ($ch);
+}
+
 //Get the cards
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "/cards?fields=name,idList&key=" . getenv("trello-key") . 
   "&token=" . getenv("trello-token");
 
+//if ($verbose) echo $trellocardsurl . "<br><br>";
 $cardsjson = file_get_contents($trellocardsurl);
-$cards = json_decode($cardsjson);
+if ($verbose) echo $cardsjson . "<br><br>";
+//$cards = json_decode($cardsjson);
+
 
 //Go through all trello cards and calculate changes
+$changes = 0;
+
 for ($i = 0; $i < count($cards); $i++) {
   if (!empty($listarr[$cards[$i]->{'idList'}])) {
-    if ($verbose) echo $cards[$i]->{'id'} . ";" . 
-    get_cq($cards[$i]->{'name'}) . ";" .
-    get_inc($cards[$i]->{'name'}) . ";" .
-    get_title($cards[$i]->{'name'}) . ";" .
-    $listarr[$cards[$i]->{'idList'}] . "<br>";
+    $found = false;
+    for ($j = 0; $j < count($rows); $j++) {
+      if ($cards[$i]->{'id'} == $rows[$j]->{'fields'}->{'TrelloId'}) {
+        $id = $rows[$j]->{'id'};
+        $changes++;
+
+        $json = '{"fields": {' .
+        '"TrelloId": "'. $cards[$i]->{'id'} .'",' . 
+        '"Title": "'. json_encode(get_title($cards[$i]->{'name'})) .'",' . 
+        '"CQId": "'. json_encode(get_cq($cards[$i]->{'name'})) .'",' . 
+        '"INC number": "'. json_encode(get_inc($cards[$i]->{'name'})) .'",' . 
+        '"Status": "'. $listarr[$cards[$i]->{'idList'}] .'",' . 
+        '"TrelloId": "'. $cards[$i]->{'id'} .'",' . 
+        '}}';
+        if ($verbose) echo $json . "<br><br>";
+        //update_airtable($id, $json);
+
+        //Update row
+        /*
+        echo $cards[$i]->{'id'} . '<br>';
+        if (get_title($cards[$i]->{'name'}) != get_field($row, 'Title'))
+          echo get_title($cards[$i]->{'name'}) . ' - ' . get_field($row, 'Title') . ' - Title missmatch!<br>';
+        if (get_cq($cards[$i]->{'name'}) != get_field($row, 'CQId'))
+          echo get_cq($cards[$i]->{'name'}) . ' - ' . get_field($row, 'CQId') . ' - CQ# missmatch!<br>';
+        if (get_inc($cards[$i]->{'name'}) != get_field($row, 'INC number'))
+          echo get_inc($cards[$i]->{'name'}) . ' - ' . get_field($row, 'INC number') . ' - INC# missmatch!<br>';
+        if ($listarr[$cards[$i]->{'idList'}] != get_field($row, 'Status'))
+          echo $listarr[$cards[$i]->{'idList'}] . ' - ' . get_field($row, 'Status') . ' - Status missmatch!<br>';
+        */
+        $found = true;
+        break;
+      }
+    }
+    if (!$found) {
+      if ($verbose) echo 'New card: ' . $cards[$i]->{'id'} . '<br>';
+      $changes++;
+      //Create row
+    }
+  }
+}
+
+
+//Close cards
+for ($j = 0; $j < count($rows); $j++) {
+  $found = false;
+  $row = $rows[$j]->{'fields'};
+  for ($i = 0; $i < count($cards); $i++) {
+    if (!empty($listarr[$cards[$i]->{'idList'}])) {
+      if ($cards[$i]->{'id'} == $row->{'TrelloId'}) {
+        $found = true;
+        break;
+      }
+    }
+  }
+  if (!$found) {
+    if ($verbose) echo 'Closed card: ' . $row->{'TrelloId'} . '<br>';
+    $changes++;
+    //Set status closed
+    $id = $rows[$j]->{'id'};
   }
 }
 
 
 
-
-
-
-// Log to airtable
-$airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/TrelloImportLog";
-if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
-
-$ch = curl_init($airtablelogurl);
-
-$atheaders = array( 
-    "Authorization: Bearer " . getenv("airtable-key"),
-    "Content-type: application/json"
-);
-
-$payload = '{"fields": {"Entry": "Integration run!","Time": "' . date('Y-m-d H:i:s') . '"}}';
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
-
-$atresult = curl_exec($ch);
-
-if(curl_errno($ch))
-{
-  echo "Failed to get airtable! Curl error: " . curl_error($ch);
-  http_response_code(200);
-  exit(0);
-}
-curl_close ($ch);
+log_airtable('Integration done! ' . $changes . ' changes.');
 
 echo '<br><br>Done!';
 
