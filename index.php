@@ -22,7 +22,7 @@ if ($_GET["debug"] != getenv("debug")) {
 
 echo "Debug paramater good!<br><br>";
 
-
+/*
 $trellolistsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "?lists=open&list_fields=name&fields=name,desc&key=" . getenv("trello-key") . 
   "&token=" . getenv("trello-token");
@@ -39,7 +39,17 @@ for ($i = 0; $i < count($lists->{'lists'}); $i++) {
 }
 //echo var_dump($listarr);
 //echo "<br><br>";
-
+*/
+$listarr = array(
+  "55e58b8960a27158e41e7897" => "Meta data (ignore)",
+  "55e5af5a7105ece0bb03d417" => "Open",
+  "55e58b8960a27158e41e7898" => "Open",
+  "55fc2a94fc78778668ac912e" => "Requires backend fix",
+  "55e58b8960a27158e41e789a" => "Fixed in Tealium",
+  "55e58b8960a27158e41e789b" => "Waiting for verification",
+  "55e5ab9aa12abb4548ba60f9" => "Closed",
+  "55e6b509ff8d0e999ce55d64 " => "Closed",
+  );
 
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "/cards?fields=name,idList&key=" . getenv("trello-key") . 
@@ -52,9 +62,9 @@ echo $cardsjson . "<br><br>";
 $cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
   echo "Card: " . $cards[$i]->{'id'} . " " . 
-  $cards[$i]->{'name'} . " " . 
+  $cards[$i]->{'name'} . " " . "<br>" .
   $cards[$i]->{'idList'} . " " . 
-  $listarr[$cards[$i]->{'idList'}] . "<br>";
+  $listarr[$cards[$i]->{'idList'}] . "<br><br>";
 }
 
 
