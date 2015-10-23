@@ -22,9 +22,9 @@ if ($_GET["debug"] != getenv("debug")) {
 
 echo "Debug paramater good!<br><br>";
 
-/*
+
 //Get airtable
-$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?view=Active";
+$airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?limit=3&view=Active";
 echo "Call: " . $airtablelisturl . "<br><br>";
 
 $ch = curl_init($airtablelisturl);
@@ -47,7 +47,7 @@ if(curl_errno($ch))
 curl_close ($ch);
 
 echo $atresult . "<br><br>";
-*/
+
 
 /*
 //We are not using the definition of the trello lists,
@@ -71,16 +71,13 @@ for ($i = 0; $i < count($lists->{'lists'}); $i++) {
 */
 
 
-//Hard coded status for the trello lists
+//Hard coded status for the trello lists, only active lists are included
 $listarr = array(
-  "55e58b8960a27158e41e7897" => "Meta data (ignore)",
   "55e5af5a7105ece0bb03d417" => "Open",
   "55e58b8960a27158e41e7898" => "Open",
   "55fc2a94fc78778668ac912e" => "Requires backend fix",
   "55e58b8960a27158e41e789a" => "Fixed in Tealium",
   "55e58b8960a27158e41e789b" => "Waiting for verification",
-  "55e5ab9aa12abb4548ba60f9" => "Closed",
-  "55e6b509ff8d0e999ce55d64" => "Closed",
   );
 
 //Functions for processing card name
@@ -121,14 +118,18 @@ $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") .
 echo "Call: " . $trellocardsurl . "<br><br>";
 
 $cardsjson = file_get_contents($trellocardsurl);
-//echo $cardsjson . "<br><br>";
+echo $cardsjson . "<br><br>";
 $cards = json_decode($cardsjson);
+
+//Go through all trello cards and calculate changes
 for ($i = 0; $i < count($cards); $i++) {
-  echo $cards[$i]->{'id'} . ";" . 
-  get_cq($cards[$i]->{'name'}) . ";" .
-  get_inc($cards[$i]->{'name'}) . ";" .
-  get_title($cards[$i]->{'name'}) . ";" .
-  $listarr[$cards[$i]->{'idList'}] . "<br>";
+  if (!empty($listarr[$cards[$i]->{'idList'}])) {
+    echo $cards[$i]->{'id'} . ";" . 
+    get_cq($cards[$i]->{'name'}) . ";" .
+    get_inc($cards[$i]->{'name'}) . ";" .
+    get_title($cards[$i]->{'name'}) . ";" .
+    $listarr[$cards[$i]->{'idList'}] . "<br>";
+  }
 }
 
 
