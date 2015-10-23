@@ -93,6 +93,26 @@ function get_cq($name) {
   return "";
 }
 
+function get_inc($name) {
+  $matches = array();
+  preg_match('/\[INC([\d]+)\]/', $name, $matches);
+  if (isset($matches[1]))
+    return "INC" . $matches[1];
+
+  return "";
+}
+
+
+function get_title($name) {
+  $matches = array();
+  preg_match('/.*\](.*)/', $name, $matches);
+  if (isset($matches[1]))
+    if (strlen(trim($matches[1])) > 0)
+      return $matches[1];
+
+  return $name;
+}
+
 //Get the cards
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "/cards?fields=name,idList&key=" . getenv("trello-key") . 
@@ -104,11 +124,11 @@ $cardsjson = file_get_contents($trellocardsurl);
 //echo $cardsjson . "<br><br>";
 $cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
-  echo "Card: " . $cards[$i]->{'id'} . " " . 
-  $cards[$i]->{'name'} . "<br>" .
-  get_cq($cards[$i]->{'name'}) . "<br>" .
-  $cards[$i]->{'idList'} . " " . 
-  $listarr[$cards[$i]->{'idList'}] . "<br><br>";
+  echo "TrelloId: " . $cards[$i]->{'id'} . " " . 
+  "CQ Number: " . get_cq($cards[$i]->{'name'}) . "<br>" .
+  "INC Number: " . get_inc($cards[$i]->{'name'}) . "<br>" .
+  "Title: " . get_title($cards[$i]->{'name'}) . "<br>" .
+  "Status: " . $listarr[$cards[$i]->{'idList'}] . "<br><br>";
 }
 
 
