@@ -82,19 +82,14 @@ $listarr = array(
   "55e6b509ff8d0e999ce55d64" => "Closed",
   );
 
-//Get the cards
-function foo($arg_1, $arg_2, /* ..., */ $arg_n) {
-    echo "Example function.\n";
-    return $retval;
-}
-
+//Functions for processing card name
 function get_cq($name) {
   $matches = array();
   preg_match('/\[CQ([\d]+)\]/', $name, $matches);
-
   return $matches[1];
 }
 
+//Get the cards
 $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
   "/cards?fields=name,idList&key=" . getenv("trello-key") . 
   "&token=" . getenv("trello-token");
