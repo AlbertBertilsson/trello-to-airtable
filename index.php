@@ -23,6 +23,7 @@ if ($_GET["debug"] != getenv("debug")) {
 echo "Debug paramater good!<br><br>";
 
 /*
+//Get airtable
 $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incident?view=Active";
 echo "Call: " . $airtablelisturl . "<br><br>";
 
@@ -102,7 +103,7 @@ $cards = json_decode($cardsjson);
 for ($i = 0; $i < count($cards); $i++) {
   echo "Card: " . $cards[$i]->{'id'} . " " . 
   $cards[$i]->{'name'} . "<br>" .
-  get_cq($cards[$i]->{'name'}) . "<br>" .
+  //get_cq($cards[$i]->{'name'}) . "<br>" .
   $cards[$i]->{'idList'} . " " . 
   $listarr[$cards[$i]->{'idList'}] . "<br><br>";
 }
