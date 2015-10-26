@@ -18,13 +18,9 @@ if (!$verbose) {
   exit(0);
 }
 
-  $trellohookurl = "https://api.trello.com/1/webhooks/" .
-  "?callbackURL=http://iai-test.herokuapp.com&idModel=" . getenv("trello-board") . 
-    "&key=" . getenv("trello-key") . 
-    "&token=" . getenv("trello-token");
+  $trellohookurl = "https://api.trello.com/1/tokens/" . getenv("trello-token") . "/webhooks";
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
 
   $tresult = curl_exec($ch);
   echo $tresult;
