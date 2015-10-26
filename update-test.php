@@ -112,5 +112,5 @@ function card_to_row_json($card) {
 
 $cards = json_decode('{"id":"561b6c1cb394acc46b1e5ea2","name":"(8) [CQ75] [INSERT ID] Quick View event not set for Quick View pages (2)","idList":"55e5af5a7105ece0bb03d417"}');
 //$json = card_to_row_json($cards);
-$json = json_decode('{"fields": {"CQId": "CQ275"}}')
+$json = json_decode('{"fields": {"CQId": "CQ275"}}');
 update_airtable("recLFGi40f8HHEycT", $json);
