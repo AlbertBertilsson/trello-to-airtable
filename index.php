@@ -128,6 +128,7 @@ function log_airtable($line) {
   curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
+  if ($verbose) echo $atresult . '<br><br>';
 
   if(curl_errno($ch)) {
     echo "Failed to log to airtable! Curl error: " . curl_error($ch);
@@ -258,6 +259,7 @@ for ($i = 0; $i < count($cards); $i++) {
         if ($listarr[$cards[$i]->{'idList'}] != get_field($row, 'Status')) $updated = true;
 
         if ($updated) {
+          if ($verbose) echo 'Changed card: ' . $cards[$i]->{'id'} . '<br>';
           $changes++;
 
           $json = card_to_row_json($cards[$i]);
@@ -272,10 +274,10 @@ for ($i = 0; $i < count($cards); $i++) {
 
     if (!$found) {
       if ($verbose) echo 'New card: ' . $cards[$i]->{'id'} . '<br>';
-        $changes++;
+      $changes++;
 
-        $json = card_to_row_json($cards[$i]);
-        create_airtable($json);
+      $json = card_to_row_json($cards[$i]);
+      create_airtable($json);
     }
   }
 }
