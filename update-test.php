@@ -99,7 +99,7 @@ function update_airtable($id, $payload) {
   );
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
   curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
 
