@@ -154,9 +154,9 @@ function update_airtable($id, $payload) {
   );
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
   if ($verbose) echo $atresult . '<br><br>';
@@ -185,9 +185,9 @@ function create_airtable($payload) {
   );
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
 
