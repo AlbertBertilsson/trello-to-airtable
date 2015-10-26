@@ -20,6 +20,9 @@ if (isset($_SERVER["HTTP_HOST"]))
     $verbose = true;    
   }
 
+if ($_SERVER['REQUEST_METHOD'] == 'HEAD') //Additional HEAD-request sent from trello webhooks.
+  exit(0);
+
 
 //Get airtable
 function get_airtable() {
@@ -105,7 +108,7 @@ function get_field($row, $field) {
 function log_airtable($line) {
   global $verbose, $local;
 
-  if ($local || $verbose) {
+  if ($local) {
     echo $line;
     return;
   }
@@ -121,11 +124,10 @@ function log_airtable($line) {
   );
 
   $payload = '{"fields": {"Entry": ' . json_encode($line) . ',"Time": "' . date('Y-m-d H:i:s') . '"}}';
-  //$payload = '{"fields": {"Entry": "Test!","Time": "' . date('Y-m-d H:i:s') . '"}}';
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
   if ($verbose) echo $atresult . '<br><br>';
