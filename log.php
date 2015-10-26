@@ -19,7 +19,7 @@ if (isset($_SERVER["HTTP_HOST"]))
 function log_airtable($line) {
   global $verbose, $local;
 
-  if ($local || $verbose) {
+  if ($local) {
     echo $line;
     return;
   }
