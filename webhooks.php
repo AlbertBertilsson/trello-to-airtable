@@ -18,7 +18,7 @@ if (!$verbose) {
   exit(0);
 }
 
-$trellowebhooksurl = "https://api.trello.com/1/tokens/" . getenv("trello-token") . "/webhooks";
+$trellowebhooksurl = "https://api.trello.com/1/tokens/" . getenv("trello-token") . "?key=" . getenv("trello-key");
 
 $hooks = file_get_contents($trellowebhooksurl);
 
