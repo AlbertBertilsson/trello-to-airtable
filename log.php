@@ -37,7 +37,7 @@ function log_airtable($line) {
   $payload = '{"fields": {"Entry": ' . json_encode($line) . ',"Time": "' . date('Y-m-d H:i:s') . '"}}';
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
   curl_setopt($ch, CURLOPT_POSTFIELDS, $payload );
 
   $atresult = curl_exec($ch);
