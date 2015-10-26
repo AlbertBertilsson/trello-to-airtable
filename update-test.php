@@ -17,7 +17,7 @@ if (isset($_SERVER["HTTP_HOST"]))
 
 
 //Hard coded status for the trello lists, only active lists are included
-/*
+
 $listarr = array(
   "55e5af5a7105ece0bb03d417" => "Open",
   "55e58b8960a27158e41e7898" => "Open",
@@ -79,7 +79,7 @@ function card_to_row_json($card) {
 
   return $json;
 }
-*/
+
 
 
 // Update airtable
@@ -112,7 +112,9 @@ function update_airtable($id, $payload) {
   curl_close ($ch);
 }
 
-//$cards = json_decode('{"id":"561b6c1cb394acc46b1e5ea2","name":"(8) [CQ75] [INSERT ID] Quick View event not set for Quick View pages (2)","idList":"55e5af5a7105ece0bb03d417"}');
-//$json = card_to_row_json($cards);
-$json = json_decode('{"fields": {"CQId": "CQ275"}}');
+$cards = json_decode('{"id":"561b6c1cb394acc46b1e5ea2","name":"(8) [CQ75] [INSERT ID] Quick View event not set for Quick View pages (2)","idList":"55e5af5a7105ece0bb03d417"}');
+$json = card_to_row_json($cards);
+//$json = json_decode('{"fields": {"CQId": "CQ275"}}');
 update_airtable("recLFGi40f8HHEycT", $json);
+
+?>
