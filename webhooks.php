@@ -18,17 +18,11 @@ if (!$verbose) {
   exit(0);
 }
 
-  $trellohookurl = "https://api.trello.com/1/tokens/" . getenv("trello-token") . "/webhooks";
+$trellowebhooksurl = "https://api.trello.com/1/tokens/" . getenv("trello-token") . "/webhooks";
 
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+$hooks = file_get_contents($trellowebhooksurl);
 
-  $tresult = curl_exec($ch);
-  echo $tresult;
-
-  if(curl_errno($ch)) {
-    echo "Failed to add webhook! Curl error: " . curl_error($ch);
-  }
-  curl_close ($ch);
+echo $hooks;
 
 ?>
 </body>
