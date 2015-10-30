@@ -5,6 +5,7 @@
   <body>
 <?php
 require_once('log.php');
+require_once('airtable.php');
 
 $verbose = false;
 $local = false;
@@ -25,40 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'HEAD') //Additional HEAD-request sent from tr
   exit(0);
 
 
-//Get airtable
-function get_airtable() {
-  global $verbose, $local;
-
-  if ($local) return file_get_contents("airtable-data.json");
-
-  $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?view=Active";
-  if ($verbose) echo "Call: " . $airtablelisturl . "<br><br>";
-
-  $ch = curl_init($airtablelisturl);
-
-  $atheaders = array( 
-      "Authorization: Bearer " . getenv("airtable-key")
-  );
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-
-
-  $atresult = curl_exec($ch);
-
-  if(curl_errno($ch))
-  {
-    echo "Failed to get airtable! Curl error: " . curl_error($ch);
-    http_response_code(200);
-    exit(0);
-  }
-  curl_close ($ch);
-
-  return $atresult;
-}
-
-
 //Hard coded status for the trello lists, only active lists are included
-
 $listarr = array(
   "55e5af5a7105ece0bb03d417" => "Open",
   "55e58b8960a27158e41e7898" => "Open",
@@ -86,7 +54,6 @@ function get_inc($name) {
   return "";
 }
 
-
 function get_title($name) {
   $matches = array();
   preg_match('/.*\](.*)/', $name, $matches);
@@ -102,66 +69,6 @@ function get_field($row, $field) {
     return $row->{$field};
 
   return "";
-}
-
-// Update airtable
-function update_airtable($id, $payload) {
-  global $verbose, $local;
-
-  if ($local) return;
-
-  $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents/" . $id;
-  if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
-
-  $ch = curl_init($airtablelogurl);
-
-  $atheaders = array( 
-      "Authorization: Bearer " . getenv("airtable-key"),
-      "Content-type: application/json"
-  );
-
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload );
-
-  $atresult = curl_exec($ch);
-  if ($verbose) echo $atresult . '<br><br>';
-
-  if(curl_errno($ch)) {
-    echo "Failed to update row in airtable! Curl error: " . curl_error($ch);
-  }
-  curl_close ($ch);
-}
-
-
-// Update airtable
-function create_airtable($payload) {
-  global $verbose, $local;
-
-  if ($local) return;
-
-  $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents";
-  if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
-
-  $ch = curl_init($airtablelogurl);
-
-  $atheaders = array( 
-      "Authorization: Bearer " . getenv("airtable-key"),
-      "Content-type: application/json"
-  );
-
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload );
-
-  $atresult = curl_exec($ch);
-
-  if(curl_errno($ch)) {
-    echo "Failed to create row in airtable! Curl error: " . curl_error($ch);
-  }
-  curl_close ($ch);
 }
 
 
