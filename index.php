@@ -275,10 +275,9 @@ for ($j = 0; $j < count($rows); $j++) {
   }
 }
 
-
-loggly_log('Integration done! ' . $changes . " changes.\n\n" . file_get_contents('php://input'));
-
-echo '<br><br>Done!';
+if ($verbose) echo 'Integration done! ' . $changes . " changes.<br><br>";
+loggly_log(file_get_contents('php://input'));
+echo 'Done!';
 
 ?>
   </body>
