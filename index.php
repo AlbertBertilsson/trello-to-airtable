@@ -4,6 +4,7 @@
   </head>
   <body>
 <?php
+require_once('log.php');
 
 $verbose = false;
 $local = false;
@@ -102,42 +103,6 @@ function get_field($row, $field) {
 
   return "";
 }
-
-
-// Log to airtable
-function log_airtable($line) {
-  global $verbose, $local;
-
-  if ($local) {
-    echo $line;
-    return;
-  }
-
-  $airtablelogurl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/TrelloImportLog";
-  if ($verbose) echo "Call: " . $airtablelogurl . "<br><br>";
-
-  $ch = curl_init($airtablelogurl);
-
-  $atheaders = array( 
-      "Authorization: Bearer " . getenv("airtable-key"),
-      "Content-type: application/json"
-  );
-
-  $payload = '{"fields": {"Entry": ' . json_encode($line) . ',"Time": "' . date('Y-m-d H:i:s') . '"}}';
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload );
-
-  $atresult = curl_exec($ch);
-  if ($verbose) echo $atresult . '<br><br>';
-
-  if(curl_errno($ch)) {
-    echo "Failed to log to airtable! Curl error: " . curl_error($ch);
-  }
-  curl_close ($ch);
-}
-
 
 // Update airtable
 function update_airtable($id, $payload) {
@@ -311,7 +276,7 @@ for ($j = 0; $j < count($rows); $j++) {
 }
 
 
-log_airtable('Integration done! ' . $changes . ' changes.');
+loggly_log('Integration done! ' . $changes . " changes.\n\n" . file_get_contents('php://input'));
 
 echo '<br><br>Done!';
 
