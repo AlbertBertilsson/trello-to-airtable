@@ -1,23 +1,18 @@
 <?php
 
+function get_airtable($url) {
+  global $verbose;
 
+  if ($verbose) echo "Call: " . $url . "<br><br>";
 
-function get_airtable() {
-  global $verbose, $local;
-
-  if ($local) return file_get_contents("airtable-data.json");
-
-  $airtablelisturl = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?view=Active";
-  if ($verbose) echo "Call: " . $airtablelisturl . "<br><br>";
-
-  $ch = curl_init($airtablelisturl);
+  $ch = curl_init($url);
 
   $atheaders = array( 
       "Authorization: Bearer " . getenv("airtable-key")
   );
+
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $atheaders);
-
 
   $atresult = curl_exec($ch);
 
@@ -34,7 +29,20 @@ function get_airtable() {
 
 
 
-function update_airtable($id, $payload) {
+function get_airtable_incidents() {
+  global $local;
+
+  if ($local)
+    return file_get_contents("airtable-data.json");
+
+  $url = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Incidents?view=Active";
+
+  return get_airtable($url);
+}
+
+
+
+function update_airtable_incidents($id, $payload) {
   global $verbose, $local;
 
   if ($local) return;
@@ -65,7 +73,7 @@ function update_airtable($id, $payload) {
 
 
 
-function create_airtable($payload) {
+function create_airtable_incidents($payload) {
   global $verbose, $local;
 
   if ($local) return;
