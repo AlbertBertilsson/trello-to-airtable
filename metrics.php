@@ -45,19 +45,23 @@ function get_airtable_metrics($offset) {
 $offset = '';
 do {
   $res = get_airtable_metrics($offset);
-  echo $res . '<br><br>';
+  //echo $res . '<br><br>';
   $json = json_decode($res);
   $recs = $json->{'records'};
   for ($i = 0 ; $i < count($recs) ; $i++) {
     $rec = $recs[$i];
-    echo $rec->{'id'} . " - ";
-    echo $rec->{'fields'}->{'Name'} . '<br>';
-    echo $rec->{'fields'}->{'Variables'} . '<br>';
-    $vars = explode(',', $rec->{'fields'}->{'Variables'});
-    //var_dump($vars);
-    for ($v = 0 ; $v < count($vars) ; $v++)
-      echo "\"<strong>" . trim($vars[$v]) . "</strong>\", ";
-    echo '<br><br>';
+    if ($verbose) {
+      echo $rec->{'id'} . " - ";
+      echo $rec->{'fields'}->{'Name'} . '<br>';
+      echo $rec->{'fields'}->{'Variables'} . '<br>';
+
+      $vars = explode(',', $rec->{'fields'}->{'Variables'});
+
+      //var_dump($vars);
+      for ($v = 0 ; $v < count($vars) ; $v++)
+        echo "\"<strong>" . trim($vars[$v]) . "</strong>\", ";
+      echo '<br><br>';
+    }
   }
 
   if (isset($json->{"offset"})) $offset = $json->{"offset"};
