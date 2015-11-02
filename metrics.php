@@ -35,7 +35,7 @@ function get_airtable_metrics($offset) {
   $c = '';
   if (!empty($offset)) $c = '&offset=' . $offset;
 
-  $url = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Metric?limit=3&view=Main%20View" + $c;
+  $url = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Metric?view=Main%20View" + $c;
 
   return get_airtable($url);
 }
