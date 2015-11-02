@@ -44,7 +44,7 @@ function get_airtable_metrics($offset) {
 $offset = '';
 do {
   $res = get_airtable_metrics($offset);
-  //echo $res . '<br><br>';
+  echo $res . '<br><br>';
   $json = json_decode($res);
   $recs = $json->{'records'};
   for ($i = 0 ; $i < count($recs) ; $i++) {
