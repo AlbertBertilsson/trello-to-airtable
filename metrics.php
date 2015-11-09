@@ -42,6 +42,33 @@ function get_airtable_metrics($offset) {
 }
 
 
+function process_metric_variables($rec) {
+  global $verbose;
+  
+  $vars = explode(',', $rec->{'fields'}->{'Variables'});    
+  $use = true;
+  for ($v = 0 ; $v < count($vars) ; $v++)
+    if (strpos(trim($vars[$v]), '/') !== false ||
+        strpos(trim($vars[$v]), ' ') !== false ||
+        strpos(trim($vars[$v]), '?') !== false ||
+        strtoupper(trim($vars[$v])) === "TBA")
+      $use = false;
+
+  if ($verbose) {
+    echo $rec->{'id'} . " - ";
+    echo $rec->{'fields'}->{'Name'} . '<br>';
+    echo $rec->{'fields'}->{'Variables'} . '<br>';
+    if ($use) {
+      for ($v = 0 ; $v < count($vars) ; $v++)
+        echo "\"<strong>" . trim($vars[$v]) . "</strong>\", ";
+    } else {
+      echo "\"<strong>Do not use!</strong>\", ";
+    }
+    echo '<br><br>';
+  }
+}
+
+
 $offset = '';
 do {
   $res = get_airtable_metrics($offset);
@@ -50,18 +77,7 @@ do {
   $recs = $json->{'records'};
   for ($i = 0 ; $i < count($recs) ; $i++) {
     $rec = $recs[$i];
-    if ($verbose) {
-      echo $rec->{'id'} . " - ";
-      echo $rec->{'fields'}->{'Name'} . '<br>';
-      echo $rec->{'fields'}->{'Variables'} . '<br>';
-
-      $vars = explode(',', $rec->{'fields'}->{'Variables'});
-
-      //var_dump($vars);
-      for ($v = 0 ; $v < count($vars) ; $v++)
-        echo "\"<strong>" . trim($vars[$v]) . "</strong>\", ";
-      echo '<br><br>';
-    }
+    process_metric_variables($rec);
   }
 
   if (isset($json->{"offset"})) $offset = $json->{"offset"};
