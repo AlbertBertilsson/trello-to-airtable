@@ -90,6 +90,17 @@ do {
 } while (isset($json->{"offset"}));
 
 
+//Get url for trello
+function get_trello_url($url) {
+  if (strpos($url, '?') !== false)
+    $url = $url . "&key=";
+  else
+    $url = $url . "?key=";
+
+  $url = $url . getenv("trello-key") . "&token=" . getenv("trello-token");
+
+  return $url;  
+}
 
 function trello_put_index($payload) {
   global $verbose, $local;
@@ -97,6 +108,8 @@ function trello_put_index($payload) {
   if ($local) return;
 
   $url = "https://api.trello.com/1/cards/PPa9dRFM/desc";
+  $url = get_trello_url($url);
+  $url .= '&value=' . urlencode($payload);
   if ($verbose) echo "Call: " . $url . "<br><br>";
 
   $ch = curl_init($url);
@@ -119,6 +132,7 @@ function trello_put_index($payload) {
 
 
 trello_put_index(json_encode($variables));
+//echo json_encode($variables);
 
 echo 'Done!';
 
