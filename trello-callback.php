@@ -204,5 +204,4 @@ $active_lists = array(
   );
 */
 
-$signature = $type . ' - ' . $action->{'memberCreator'}->{'fullName'};
-loggly_log($signature);
+loggly_log(json_encode($action));
