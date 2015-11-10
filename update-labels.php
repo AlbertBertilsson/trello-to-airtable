@@ -23,6 +23,11 @@ if (isset($_SERVER["HTTP_HOST"]))
     $verbose = true;    
   }
 
+if (!$verbose) {
+  http_response_code(403);
+  exit;
+}
+
 
 function get_airtable_metrics($offset) {
   global $local;
