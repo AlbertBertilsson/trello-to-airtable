@@ -186,9 +186,7 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
   if ($new != $links[$rowid]) {
     $data = "{ \"fields\": {\"Trello links\": " . json_encode($new) . "}}";
     update_airtable_metric($rowid, $data);
-    loggly_log('Update: ' . $data);
-  } else {
-    loggly_log('No change!');
+    loggly_log($data);
   }
 }
 
