@@ -1,6 +1,13 @@
 <?php
 
 function loggly_log($data) {
+  global $local;
+
+  if ($local) {
+    echo 'Log: ' . $data . "\n";
+    return;
+  }
+
   $logurl = "https://logs-01.loggly.com/inputs/" . getenv("loggly-token") . "/tag/" . $_SERVER["SERVER_NAME"] . "/";
 
   $ch = curl_init($logurl);
