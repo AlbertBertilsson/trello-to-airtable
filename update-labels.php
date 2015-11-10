@@ -104,7 +104,7 @@ function get_trello_labels() {
 
   if ($local) return file_get_contents("labels.json");
 
-  $url = "https://api.trello.com/1/boards/" . getenv("trello-board") . "/labels";
+  $url = "https://api.trello.com/1/boards/" . getenv("trello-board") . "/labels?limit=1000";
 
   return file_get_contents(get_trello_url($url));
 }
