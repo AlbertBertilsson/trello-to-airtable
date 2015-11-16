@@ -60,8 +60,11 @@ function find_cq($short) {
       $name = $card->{'name'};
       $cq = get_cq($name);
       if (isset($card->{'url'})) {
-        $url = $card->{'url'};
-        if ($url === $short) return $cq;
+        $comp = $card->{'url'};
+        if (strrpos($comp, '/') !== false) {
+          $comp = substr($comp, 0, strrpos($comp, '/'));
+        }
+        if ($comp === $short) return $cq;
       }
     }    
   }
