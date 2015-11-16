@@ -30,9 +30,6 @@ if (!$verbose) {
 
 
 
-
-
-
 //Hard coded status for the trello lists, only active lists are included
 $listarr = array(
   "55e58b8960a27158e41e7898" => "Open",
@@ -51,25 +48,14 @@ function get_cq($name) {
   return "";
 }
 
+
 function find_cq($short) {
-  global $cards, $listarr;
-  $res = $short;
+  global $cq_url_dictionary;
 
-  foreach ($cards as $card) {
-    if (!empty($listarr[$card->{'idList'}])) {
-      $name = $card->{'name'};
-      $cq = get_cq($name);
-      if (isset($card->{'url'})) {
-        $comp = $card->{'url'};
-        if (strrpos($comp, '/') !== false) {
-          $comp = substr($comp, 0, strrpos($comp, '/'));
-        }
-        if ($comp === $short) return $cq;
-      }
-    }    
-  }
-
-  return $res;
+  if (isset($cq_url_dictionary[$short]))
+    return $cq_url_dictionary[$short];
+  else
+    return $short;
 }
 
 //Get the trello cards
@@ -87,13 +73,6 @@ function get_trello() {
   return $cardsjson;
 }
 
-$cardsjson = get_trello();
-$cards = json_decode($cardsjson);
-
-
-
-
-
 function get_airtable_metrics($offset) {
   global $local;
 
@@ -110,6 +89,44 @@ function get_airtable_metrics($offset) {
 
   return get_airtable($url);
 }
+
+
+
+$cardsjson = get_trello();
+$cards = json_decode($cardsjson);
+$cq_url_dictionary = array();
+
+
+
+
+$count = 0;
+$tealiumfixed = 0;
+echo "<b>Incidents:</b><table>";
+echo "<thead><td>CQ#</td><td>Incident</td></thead>";
+
+foreach ($cards as $card) {
+  if (!empty($listarr[$card->{'idList'}])) {
+    if ($card->{'idList'} == '55e58b8960a27158e41e789a') $tealiumfixed++;
+    $name = $card->{'name'};
+    $cq = get_cq($name);
+    if (isset($card->{'url'})) {
+      $url = $card->{'url'};
+      if (strrpos($url, '/') !== false) {
+        $comp = substr($url, 0, strrpos($url, '/'));
+        $cq_url_dictionary[$comp] = $cq;
+      }
+      echo "<tr><td><a href='$url' target='_blank'>$cq</a></td><td>$name<td><tr>";
+    }
+    else
+      echo "<tr><td>$cq</td><td>$name<td><tr>";
+
+    $count++;
+  }
+}
+
+if ($verbose) echo "</table>Total count: <b>$count</b> of which <b>$tealiumfixed</b> are fixed in tealium.<br><br><br>";
+
+
 
 echo "<b>Affected metrics:</b><table>";
 echo "<thead><td>Metric</td><td>Incidents</td></thead>";
@@ -144,33 +161,6 @@ do {
 
 if ($verbose) echo "</table>Total count: <b>" . $count . "</b><br><br><br>";
 
-
-
-
-
-
-$count = 0;
-$tealiumfixed = 0;
-echo "<b>Incidents:</b><table>";
-echo "<thead><td>CQ#</td><td>Incident</td></thead>";
-
-foreach ($cards as $card) {
-  if (!empty($listarr[$card->{'idList'}])) {
-    if ($card->{'idList'} == '55e58b8960a27158e41e789a') $tealiumfixed++;
-    $name = $card->{'name'};
-    $cq = get_cq($name);
-    if (isset($card->{'url'})) {
-      $url = $card->{'url'};
-      echo "<tr><td><a href='$url' target='_blank'>$cq</a></td><td>$name<td><tr>";
-    }
-    else
-      echo "<tr><td>$cq</td><td>$name<td><tr>";
-
-    $count++;
-  }
-}
-
-if ($verbose) echo "</table>Total count: <b>$count</b> of which <b>$tealiumfixed</b> are fixed in tealium.<br><br><br>";
 
 
 echo 'Done!';
