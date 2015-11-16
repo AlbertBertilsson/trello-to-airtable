@@ -29,53 +29,6 @@ if (!$verbose) {
 }
 
 
-function get_airtable_metrics($offset) {
-  global $local;
-
-  if ($local)
-    if (empty($offset))
-      return file_get_contents("metrics-1.json");
-    else
-      return file_get_contents("metrics-2.json");
-
-  $c = '';
-  if (!empty($offset)) $c = '&offset=' . $offset;
-
-  $url = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Metric?view=Has%20incident" . $c;
-
-  return get_airtable($url);
-}
-
-echo "<b>Metrics with incidents:</b><table>";
-
-$offset = '';
-$count = 0;
-do {
-  $res = get_airtable_metrics($offset);
-  $json = json_decode($res);
-  $recs = $json->{'records'};
-  for ($i = 0 ; $i < count($recs) ; $i++) {
-    $rec = $recs[$i];
-    if (isset($rec->{'fields'}->{'Trello links'})) {
-      $count++;
-      echo '<tr><td>' . $rec->{'fields'}->{'Name'} . '</td><td>';
-      $links = $rec->{'fields'}->{'Trello links'};
-      $l = explode(',', $links);
-      foreach ($l as $a) {
-        $a = trim($a);
-        echo "<a href=\"$a\" target=\"_blank\">$a</a>, ";
-      }
-      echo '</td></tr>';
-    }
-  }
-
-  if (isset($json->{"offset"})) $offset = $json->{"offset"};
-
-} while (isset($json->{"offset"}));
-
-if ($verbose) echo "</table><br>Total count: <b>" . $count . "</b><br><br><br>";
-
-
 
 
 
@@ -98,32 +51,23 @@ function get_cq($name) {
   return "";
 }
 
-function get_inc($name) {
-  $matches = array();
-  preg_match('/\[INC([\d]+)\]/', $name, $matches);
-  if (isset($matches[1]))
-    return "INC" . $matches[1];
+function find_cq($short) {
+  global $cards, $listarr;
+  $res = $short;
 
-  return "";
+  foreach ($cards as $card) {
+    if (!empty($listarr[$card->{'idList'}])) {
+      $name = $card->{'name'};
+      $cq = get_cq($name);
+      if (isset($card->{'url'})) {
+        $url = $card->{'url'};
+        if ($url === $short) return $cq;
+      }
+    }    
+  }
+
+  return $res;
 }
-
-function get_title($name) {
-  $matches = array();
-  preg_match('/.*\](.*)/', $name, $matches);
-  if (isset($matches[1]))
-    if (strlen(trim($matches[1])) > 0)
-      return trim($matches[1]);
-
-  return $name;
-}
-
-function get_field($row, $field) {
-  if (isset($row->{$field}))
-    return $row->{$field};
-
-  return "";
-}
-
 
 //Get the trello cards
 function get_trello() {
@@ -143,25 +87,87 @@ function get_trello() {
 $cardsjson = get_trello();
 $cards = json_decode($cardsjson);
 
+
+
+
+
+function get_airtable_metrics($offset) {
+  global $local;
+
+  if ($local)
+    if (empty($offset))
+      return file_get_contents("metrics-1.json");
+    else
+      return file_get_contents("metrics-2.json");
+
+  $c = '';
+  if (!empty($offset)) $c = '&offset=' . $offset;
+
+  $url = "https://api.airtable.com/v0/appq4IfZYs9aL2s1e/Metric?view=Has%20incident" . $c;
+
+  return get_airtable($url);
+}
+
+echo "<b>Affected metrics:</b><table>";
+echo "<thead><td>Metric</td><td>Incidents</td></thead>";
+
+$offset = '';
+$count = 0;
+do {
+  $res = get_airtable_metrics($offset);
+  $json = json_decode($res);
+  $recs = $json->{'records'};
+  for ($i = 0 ; $i < count($recs) ; $i++) {
+    $rec = $recs[$i];
+    if (isset($rec->{'fields'}->{'Trello links'})) {
+      $count++;
+      $m = $rec->{'fields'}->{'Name'};
+      $ml = 'https://airtable.com/tblxdijsMWz8Q10vC/viwgalMoImhjKJbwv/' . $rec->{'id'};
+      echo "<tr><td><a href='$ml' target='_blank'>$m</a></td><td>";
+      $links = $rec->{'fields'}->{'Trello links'};
+      $l = explode(',', $links);
+      foreach ($l as $a) {
+        $a = trim($a);
+        $cq = find_cq($a);
+        echo "<a href='$a' target='_blank'>$cq</a>, ";
+      }
+      echo '</td></tr>';
+    }
+  }
+
+  if (isset($json->{"offset"})) $offset = $json->{"offset"};
+
+} while (isset($json->{"offset"}));
+
+if ($verbose) echo "</table>Total count: <b>" . $count . "</b><br><br><br>";
+
+
+
+
+
+
 $count = 0;
 $tealiumfixed = 0;
 echo "<b>Incidents:</b><table>";
+echo "<thead><td>CQ#</td><td>Incident</td></thead>";
 
 foreach ($cards as $card) {
   if (!empty($listarr[$card->{'idList'}])) {
     if ($card->{'idList'} == '55e58b8960a27158e41e789a') $tealiumfixed++;
     $name = $card->{'name'};
+    $cq = get_cq($name);
     if (isset($card->{'url'})) {
       $url = $card->{'url'};
-      echo "<tr><td><a href=\"$url\">$name</a><td><tr>";
+      echo "<tr><td><a href='$url' target='_blank'>$cq</a></td><td>$name<td><tr>";
     }
     else
-      echo "<tr><td>$name<td><tr>";
+      echo "<tr><td>$cq</td><td>$name<td><tr>";
+
     $count++;
   }
 }
 
-if ($verbose) echo "</table><br>Total count: <b>$count</b> of which <b>$tealiumfixed</b> are fixed in tealium.<br><br><br>";
+if ($verbose) echo "</table>Total count: <b>$count</b> of which <b>$tealiumfixed</b> are fixed in tealium.<br><br><br>";
 
 
 echo 'Done!';
