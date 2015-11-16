@@ -3,8 +3,6 @@
 function get_airtable($url) {
   global $verbose;
 
-  if ($verbose) echo "Call: " . $url . "<br><br>";
-
   $ch = curl_init($url);
 
   $atheaders = array( 
