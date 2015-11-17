@@ -10,6 +10,7 @@ $local = false;
 
 require_once('log.php');
 require_once('airtable.php');
+require_once('trello-lists.php');
 
 if (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]))
   if (strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) == "https")
@@ -30,13 +31,6 @@ if (!$verbose) {
 
 
 
-//Hard coded status for the trello lists, only active lists are included
-$listarr = array(
-  "55e58b8960a27158e41e7898" => "Open",
-  "55fc2a94fc78778668ac912e" => "Requires backend fix",
-  "55e58b8960a27158e41e789a" => "Fixed in Tealium",
-  "55e58b8960a27158e41e789b" => "Waiting for verification",
-  );
 
 //Functions for processing card name
 function get_cq($name) {
@@ -105,8 +99,8 @@ echo "<b>Incidents:</b><table>";
 echo "<thead><td>CQ#</td><td>Incident</td></thead>";
 
 foreach ($cards as $card) {
-  if (!empty($listarr[$card->{'idList'}])) {
-    if ($card->{'idList'} == '55e58b8960a27158e41e789a') $tealiumfixed++;
+  if (in_array($card->{'idList'}, $trello_active_lists)) {
+    if ($card->{'idList'} == $trello_list_fixed_tealium) $tealiumfixed++;
     $name = $card->{'name'};
     $cq = get_cq($name);
     if (isset($card->{'url'})) {
