@@ -172,10 +172,14 @@ function get_var_rowid($label) {
 }
 
 function get_link_rowids($link) {
-  global $links;  
+  global $links, $archive;  
 
   $rows = array();
   foreach ($links as $id => $var)
+    if (strpos($var, $link) !== false)
+      $rows[] = $id;
+
+  foreach ($archive as $id => $var)
     if (strpos($var, $link) !== false)
       $rows[] = $id;
 
@@ -261,16 +265,15 @@ if ($type == 'updateCard') {
   $before = $action->{'data'}->{'listBefore'}->{'id'};
 
   $rowids = get_link_rowids($shortlink);
-  //Get archive too!
-  var_dump($rowids);
-  foreach ($rowids as $id)
-    echo "ID: $id\n";
+  loggly_log(json_encode($rowids));
 
   if (in_array($before, $trello_affecting_lists) && !in_array($after, $trello_affecting_lists)){
+    loggly_log("{ \"listchange\" : \"archive\"}");
     //Add to archive
     //Remove from links
   }
   if (!in_array($before, $trello_affecting_lists) && in_array($after, $trello_affecting_lists)){
+    loggly_log("{ \"listchange\" : \"restore\"}");
     //Add to links
     //Remove from archive
   }
