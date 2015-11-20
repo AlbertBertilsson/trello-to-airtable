@@ -146,8 +146,6 @@ do {
   if (isset($json->{"offset"})) $offset = $json->{"offset"};
 
 } while (isset($json->{"offset"}));
-loggly_log(json_encode($links));
-loggly_log(json_encode($achive));
 
 
 $cardsjson = get_trello();
@@ -226,13 +224,11 @@ $type = $action->{'type'};
 //Label change
 if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
 
-  loggly_log("{ \"$type\" : " . json_encode($shortlink) . " }");
   $rowid = get_var_rowid($action->{'data'}->{'label'}->{'name'});
 
   $new = $old = '';
   $list = $cardlist[$action->{'data'}->{'card'}->{'id'}];
   $active = in_array($list, $trello_affecting_lists);
-  loggly_log("{ \"list\" : \"$list\", \"active\" : \"$active\" }");
   if ($active){
     if (isset($links[$rowid])) $old = $links[$rowid];
   } else {
@@ -244,7 +240,6 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
   else
     $new = remove_link($old, $shortlink);
 
-  loggly_log("{ \"new\" : " . json_encode($new) . ", \"old\" : " . json_encode($old) . " }");
 
   if ($new != $old) {
     echo "Old: $old\n";
