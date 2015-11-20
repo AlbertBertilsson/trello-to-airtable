@@ -265,18 +265,47 @@ if ($type == 'updateCard') {
   $before = $action->{'data'}->{'listBefore'}->{'id'};
 
   $rowids = get_link_rowids($shortlink);
-  loggly_log(json_encode($rowids));
 
   if (in_array($before, $trello_affecting_lists) && !in_array($after, $trello_affecting_lists)){
     loggly_log("{ \"listchange\" : \"archive\"}");
-    //Add to archive
-    //Remove from links
+    loggly_log(json_encode($rowids));
+
+    foreach ($rowids as $rowid) {
+      $newl = $oldl = '';
+      $newa = $olda = '';
+      if (isset($links[$rowid])) $oldl = $links[$rowid];
+      if (isset($archive[$rowid])) $olda = $archive[$rowid];
+
+      $newl = remove_link($oldl, $shortlink);
+      $newa = add_link($olda, $shortlink);
+
+      if ($newl != $oldl || $newa != $olda) {
+        $data = "{ \"fields\": {\"Trello links\": " . json_encode($newl) . ", \"Trello archive\": " . json_encode($newa) . "}}";
+        loggly_log(json_encode($data));
+      }
+    }
   }
+
   if (!in_array($before, $trello_affecting_lists) && in_array($after, $trello_affecting_lists)){
     loggly_log("{ \"listchange\" : \"restore\"}");
-    //Add to links
-    //Remove from archive
+    loggly_log(json_encode($rowids));
+
+    foreach ($rowids as $rowid) {
+      $newl = $oldl = '';
+      $newa = $olda = '';
+      if (isset($links[$rowid])) $oldl = $links[$rowid];
+      if (isset($archive[$rowid])) $olda = $archive[$rowid];
+
+      $newl = add_link($oldl, $shortlink);
+      $newa = remove_link($olda, $shortlink);
+
+      if ($newl != $oldl || $newa != $olda) {
+        $data = "{ \"fields\": {\"Trello links\": " . json_encode($newl) . ", \"Trello archive\": " . json_encode($newa) . "}}";
+        loggly_log(json_encode($data));
+      }
+    }
   }
+
 }
 
 
