@@ -146,7 +146,8 @@ do {
   if (isset($json->{"offset"})) $offset = $json->{"offset"};
 
 } while (isset($json->{"offset"}));
-
+loggly_log(json_encode($links));
+loggly_log(json_encode($achive));
 
 
 $cardsjson = get_trello();
