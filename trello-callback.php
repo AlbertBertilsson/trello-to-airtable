@@ -225,20 +225,25 @@ $type = $action->{'type'};
 //Label change
 if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
 
+  loggly_log("{ \"$type\" : " . json_encode($shortlink) . " }");
   $rowid = get_var_rowid($action->{'data'}->{'label'}->{'name'});
 
   $new = $old = '';
   $list = $cardlist[$action->{'data'}->{'card'}->{'id'}];
   $active = in_array($list, $trello_affecting_lists);
-  if ($active)
+  loggly_log("{ \"list\" : \"$list\", \"active\" : \"$active\" }");
+  if ($active){
     if (isset($links[$rowid])) $old = $links[$rowid];
-  else
+  } else {
     if (isset($archive[$rowid])) $old = $archive[$rowid];
+  }
 
   if ($type == 'addLabelToCard')
     $new = add_link($old, $shortlink);
   else
     $new = remove_link($old, $shortlink);
+
+  loggly_log("{ \"new\" : " . json_encode($new) . ", \"old\" : " . json_encode($old) . " }");
 
   if ($new != $old) {
     echo "Old: $old\n";
@@ -249,11 +254,8 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
       $data = "{ \"fields\": {\"Trello archive\": " . json_encode($new) . "}}";
 
     update_airtable_metric($rowid, $data);
-  } else {
-    $data = "{ \"nochange-from\": $old }";
+    loggly_log($data);
   }
-
-  loggly_log($data);
 }
 
 
