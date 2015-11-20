@@ -10,6 +10,7 @@ $local = false;
 
 require_once('log.php');
 require_once('airtable.php');
+require_once('trello-lists.php');
 
 if (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]))
   if (strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) == "https")
@@ -37,6 +38,21 @@ if (!$local && $post->{'action'}->{'data'}->{'board'}->{'shortLink'} !== getenv(
   exit(0);
 }
 
+
+//Get the trello cards
+function get_trello() {
+  global $verbose, $local;
+
+  if ($local) return file_get_contents("trello-cardlist.json");
+
+  $trellocardsurl = "https://api.trello.com/1/boards/" . getenv("trello-board") . 
+    "/cards?fields=idList&key=" . getenv("trello-key") . 
+    "&token=" . getenv("trello-token");
+
+  $cardsjson = file_get_contents($trellocardsurl);
+
+  return $cardsjson;
+}
 
 function get_airtable_metrics($offset) {
   global $local;
@@ -86,12 +102,8 @@ function update_airtable_metric($metric, $payload) {
 }
 
 
-$variables = array();
-$links = array();
-
-
 function process_metric_variables($rec) {
-  global $verbose, $variables, $links;
+  global $verbose, $variables, $links, $archive;
 
   $vars = explode(',', $rec->{'fields'}->{'Variables'});    
   $use = true;
@@ -109,14 +121,21 @@ function process_metric_variables($rec) {
     $variables[$rec->{'id'}] = $rec->{'fields'}->{'Variables'};
     if (!empty($rec->{'fields'}->{'Trello links'}))
       $links[$rec->{'id'}] = $rec->{'fields'}->{'Trello links'};
+    if (!empty($rec->{'fields'}->{'Trello archive'}))
+      $archive[$rec->{'id'}] = $rec->{'fields'}->{'Trello archive'};
   }
 }
+
+
+$variables = array();
+$links = array();
+$archive = array();
+
 
 
 $offset = '';
 do {
   $res = get_airtable_metrics($offset);
-  //echo $res . '<br><br>';
   $json = json_decode($res);
   $recs = $json->{'records'};
   for ($i = 0 ; $i < count($recs) ; $i++) {
@@ -130,6 +149,70 @@ do {
 
 
 
+$cardsjson = get_trello();
+$cards = json_decode($cardsjson);
+$cardlist = array();
+foreach ($cards as $card) {
+  $cardlist[$card->{'id'}] = $card->{'idList'};
+}
+
+
+
+function get_var_rowid($label) {
+  global $variables;  
+
+  foreach ($variables as $id => $var) {
+    $e = explode(',', $var);
+    foreach ($e as $v) {
+      if (trim($v) == $label) 
+        return $id;
+    }
+  }
+
+  return false;
+}
+
+function get_link_rowids($link) {
+  global $links;  
+
+  $rows = array();
+  foreach ($links as $id => $var)
+    if (strpos($var, $link) !== false)
+      $rows[] = $id;
+
+  return $rows;
+}
+
+function add_link($links, $link) {
+  if (empty($links)) return $link;
+
+  if (strpos($links, $link) !== false)
+    return $links;
+
+  return trim($links) . ', ' . $link;
+}
+
+function remove_link($links, $link) {
+  if (empty($links)) return $links;
+
+  if (strpos($links, $link) === false)
+    return $links;
+
+  $l = explode(',', $links);
+  if (count($l) === 0) return '';
+
+  $new = '';
+  foreach ($l as $i) {
+    $i = trim($i);
+    if ($i != $link && !empty($i) ) {
+      $new .= ', ' . $i;
+    }
+  }
+  $new = trim(substr($new, 2));
+
+  return $new;
+}
+
 
 
 $action = $post->{'action'};
@@ -141,65 +224,56 @@ $type = $action->{'type'};
 
 //Label change
 if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
-  //Get airtable row id.
-  $label = $action->{'data'}->{'label'}->{'name'};
-  $rowid = '';
-  foreach ($variables as $id => $var) {
-    $e = explode(',', $var);
-    foreach ($e as $v) {
-      if (trim($v) == $label) {
-        $rowid = $id;
-        break;
-      }
-    }
-    if (!empty($rowid)) break;
-  }
 
-  $new = '';
-  if (isset($links[$rowid])) $new = $links[$rowid];
-  $pos = strpos($new, $shortlink);
-  if ($type == 'addLabelToCard') { //Add
-    if ($pos === false) {
-      if (empty($new))
-        $new = $shortlink;
-      else
-        $new = trim($new) . ', ' . $shortlink;
-    }
-  } else { //Remove
-    if ($pos !== false) {
-      $l = explode(',', $new);
-      if (count($l) > 1) {
-        $new = '';
-        foreach ($l as $i) {
-          $i = trim($i);
-          if ($i != $shortlink && !empty($i) ) {
-            $new .= ', ' . $i;
-          }
-        }
-        $new = trim(substr($new, 2));
-      } else {
-        $new = '';
-      }
-    }
-  }
+  $rowid = get_var_rowid($action->{'data'}->{'label'}->{'name'});
 
-  if ($new != $links[$rowid]) {
-    $data = "{ \"fields\": {\"Trello links\": " . json_encode($new) . "}}";
-    update_airtable_metric($rowid, $data);
+  $new = $old = '';
+  $list = $cardlist[$action->{'data'}->{'card'}->{'id'}];
+  $active = in_array($list, $trello_affecting_lists);
+  if ($active)
+    if (isset($links[$rowid])) $old = $links[$rowid];
+  else
+    if (isset($archive[$rowid])) $old = $archive[$rowid];
+
+  if ($type == 'addLabelToCard')
+    $new = add_link($old, $shortlink);
+  else
+    $new = remove_link($old, $shortlink);
+
+  if ($new != $old) {
+    echo "Old: $old\n";
+    echo "New: $new\n";
+    if ($active)
+      $data = "{ \"fields\": {\"Trello links\": " . json_encode($new) . "}}";
+    else
+      $data = "{ \"fields\": {\"Trello archive\": " . json_encode($new) . "}}";
+    //Get which list card is on to know if "Trello links" or "Trello archive" should be updated.
+    //update_airtable_metric($rowid, $data);
     loggly_log($data);
   }
 }
 
 
-//List update
-/*
-$active_lists = array(
-  "55e5af5a7105ece0bb03d417",
-  "55e58b8960a27158e41e7898",
-  "55fc2a94fc78778668ac912e",
-  "55e58b8960a27158e41e789a",
-  "55e58b8960a27158e41e789b",
-  );
-*/
+//List change
+if ($type == 'updateCard') {
+  $after = $action->{'data'}->{'listAfter'}->{'id'};
+  $before = $action->{'data'}->{'listBefore'}->{'id'};
+
+  $rowids = get_link_rowids($shortlink);
+  var_dump($rowids);
+  foreach ($rowids as $id)
+    echo "ID: $id\n";
+
+  if (in_array($before, $trello_affecting_lists) && !in_array($after, $trello_affecting_lists)){
+    //Add to archive
+    //Remove from links
+  }
+  if (!in_array($before, $trello_affecting_lists) && in_array($after, $trello_affecting_lists)){
+    //Add to links
+    //Remove from archive
+  }
+}
+
+
 
 loggly_log(json_encode($action));
