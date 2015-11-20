@@ -247,10 +247,13 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
       $data = "{ \"fields\": {\"Trello links\": " . json_encode($new) . "}}";
     else
       $data = "{ \"fields\": {\"Trello archive\": " . json_encode($new) . "}}";
-    //Get which list card is on to know if "Trello links" or "Trello archive" should be updated.
+
     update_airtable_metric($rowid, $data);
-    loggly_log($data);
+  } else {
+    $data = "{ \"nochange-from\": $old }";
   }
+
+  loggly_log($data);
 }
 
 
@@ -260,6 +263,7 @@ if ($type == 'updateCard') {
   $before = $action->{'data'}->{'listBefore'}->{'id'};
 
   $rowids = get_link_rowids($shortlink);
+  //Get archive too!
   var_dump($rowids);
   foreach ($rowids as $id)
     echo "ID: $id\n";
