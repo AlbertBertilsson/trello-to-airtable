@@ -248,7 +248,7 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
     else
       $data = "{ \"fields\": {\"Trello archive\": " . json_encode($new) . "}}";
     //Get which list card is on to know if "Trello links" or "Trello archive" should be updated.
-    //update_airtable_metric($rowid, $data);
+    update_airtable_metric($rowid, $data);
     loggly_log($data);
   }
 }
