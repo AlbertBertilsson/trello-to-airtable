@@ -94,13 +94,11 @@ $cq_url_dictionary = array();
 
 
 $count = 0;
-$tealiumfixed = 0;
 echo "<b>Incidents:</b><table>";
 echo "<thead><td>CQ#</td><td>Incident</td></thead>";
 
 foreach ($cards as $card) {
-  if (in_array($card->{'idList'}, $trello_active_lists)) {
-    if ($card->{'idList'} == $trello_list_fixed_tealium) $tealiumfixed++;
+  if (in_array($card->{'idList'}, $trello_affecting_lists)) {
     $name = $card->{'name'};
     $cq = get_cq($name);
     if (isset($card->{'url'})) {
@@ -118,7 +116,7 @@ foreach ($cards as $card) {
   }
 }
 
-if ($verbose) echo "</table>Total count: <b>$count</b> of which <b>$tealiumfixed</b> are fixed in tealium.<br><br><br>";
+if ($verbose) echo "</table>Total count: <b>$count</b>.<br><br><br>";
 
 
 
