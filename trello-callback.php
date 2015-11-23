@@ -291,7 +291,7 @@ if ($type == 'updateCard') {
 
       //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
       if ($newl != $oldl || $newa != $olda) {
-        $data = array("fields" => array("Trello links" => $newl, "Trello archive" => $newa));
+        $data = json_encode(array("fields" => array("Trello links" => $newl, "Trello archive" => $newa)));
         update_airtable_metric($rowid, $data);
         loggly_log(json_encode($data));
       }
