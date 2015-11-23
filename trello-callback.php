@@ -225,6 +225,8 @@ echo 'Shortlink: ' . $shortlink . "\n";
 
 $type = $action->{'type'};
 
+
+
 //Label change
 if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
 
@@ -261,14 +263,6 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
 
 
 
-/************************************
-  TODO!!!
-
-  Consider how to handle card where the function above has set a label in archive/links
-  and the card is then moved and then remove.
-  Does it need handling? Assuming everything else is working fine?
-  ************************************/
-
 //List change
 if ($type == 'updateCard') {
   $after = $action->{'data'}->{'listAfter'}->{'id'};
@@ -277,7 +271,7 @@ if ($type == 'updateCard') {
   $rowids = get_link_rowids($shortlink);
 
   if (in_array($before, $trello_affecting_lists) != in_array($after, $trello_affecting_lists)){
-    loggly_log(json_encode($rowids));
+    //loggly_log(json_encode($rowids));
 
     foreach ($rowids as $rowid) {
       $newl = $oldl = '';
@@ -286,11 +280,11 @@ if ($type == 'updateCard') {
       if (isset($archive[$rowid])) $olda = $archive[$rowid];
 
       if (in_array($before, $trello_affecting_lists) && !in_array($after, $trello_affecting_lists)){
-        loggly_log(json_encode(array("listchange" => "archive")));
+        //loggly_log(json_encode(array("listchange" => "archive")));
         $newl = remove_link($oldl, $shortlink);
         $newa = add_link($olda, $shortlink);
       } else {
-        loggly_log(json_encode(array("listchange" => "restore")));
+        //loggly_log(json_encode(array("listchange" => "restore")));
         $newl = add_link($oldl, $shortlink);
         $newa = remove_link($olda, $shortlink);
       }
@@ -298,54 +292,11 @@ if ($type == 'updateCard') {
       //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
       if ($newl != $oldl || $newa != $olda) {
         $data = array("fields" => array("Trello links" => $newl, "Trello archive" => $newa));
+        update_airtable_metric($rowid, $data);
         loggly_log(json_encode($data));
       }
     }
   }
-
-/*
-  if (in_array($before, $trello_affecting_lists) && !in_array($after, $trello_affecting_lists)){
-    loggly_log(json_encode(array("listchange" => "archive")));
-    loggly_log(json_encode($rowids));
-
-    foreach ($rowids as $rowid) {
-      $newl = $oldl = '';
-      $newa = $olda = '';
-      if (isset($links[$rowid])) $oldl = $links[$rowid];
-      if (isset($archive[$rowid])) $olda = $archive[$rowid];
-
-      $newl = remove_link($oldl, $shortlink);
-      $newa = add_link($olda, $shortlink);
-
-      //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
-      if ($newl != $oldl || $newa != $olda) {
-        $data = array("fields" => array("Trello links" => $newl, "Trello archive" => $newa));
-        loggly_log(json_encode($data));
-      }
-    }
-  }
-
-  if (!in_array($before, $trello_affecting_lists) && in_array($after, $trello_affecting_lists)){
-    loggly_log(json_encode(array("listchange" => "restore")));
-    loggly_log(json_encode($rowids));
-
-    foreach ($rowids as $rowid) {
-      $newl = $oldl = '';
-      $newa = $olda = '';
-      if (isset($links[$rowid])) $oldl = $links[$rowid];
-      if (isset($archive[$rowid])) $olda = $archive[$rowid];
-
-      $newl = add_link($oldl, $shortlink);
-      $newa = remove_link($olda, $shortlink);
-
-      //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
-      if ($newl != $oldl || $newa != $olda) {
-        $data = array("fields" => array("Trello links" => $newl, "Trello archive" => $newa));
-        loggly_log(json_encode($data));
-      }
-    }
-  }
-*/
 }
 
 
