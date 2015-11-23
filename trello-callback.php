@@ -259,6 +259,16 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
 }
 
 
+
+
+/************************************
+  TODO!!!
+
+  Consider how to handle card where the function above has set a label in archive/links
+  and the card is then moved and then remove.
+  Does it need handling? Assuming everything else is working fine?
+  ************************************/
+
 //List change
 if ($type == 'updateCard') {
   $after = $action->{'data'}->{'listAfter'}->{'id'};
@@ -279,6 +289,7 @@ if ($type == 'updateCard') {
       $newl = remove_link($oldl, $shortlink);
       $newa = add_link($olda, $shortlink);
 
+      loggly_log(json_encode("{ \"fields\": {\"tlold\": " . json_encode($oldl) . ", \"tlnew\": " . json_encode($newl) . ", \"taold\": " . json_encode($olda) . ", \"taold\": " . json_encode($newa) . "}}"));
       if ($newl != $oldl || $newa != $olda) {
         $data = "{ \"fields\": {\"Trello links\": " . json_encode($newl) . ", \"Trello archive\": " . json_encode($newa) . "}}";
         loggly_log(json_encode($data));
@@ -299,6 +310,7 @@ if ($type == 'updateCard') {
       $newl = add_link($oldl, $shortlink);
       $newa = remove_link($olda, $shortlink);
 
+      loggly_log(json_encode("{ \"fields\": {\"tlold\": " . json_encode($oldl) . ", \"tlnew\": " . json_encode($newl) . ", \"taold\": " . json_encode($olda) . ", \"taold\": " . json_encode($newa) . "}}"));
       if ($newl != $oldl || $newa != $olda) {
         $data = "{ \"fields\": {\"Trello links\": " . json_encode($newl) . ", \"Trello archive\": " . json_encode($newa) . "}}";
         loggly_log(json_encode($data));
