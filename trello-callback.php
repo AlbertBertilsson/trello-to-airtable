@@ -289,7 +289,7 @@ if ($type == 'updateCard') {
         $newa = remove_link($olda, $shortlink);
       }
 
-      loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
+      //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
       if ($newl != $oldl || $newa != $olda) {
         $data = json_encode(array("fields" => array("Trello links" => $newl, "Trello archive" => $newa)));
         update_airtable_metric($rowid, $data);
