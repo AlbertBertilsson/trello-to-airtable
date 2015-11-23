@@ -271,7 +271,7 @@ if ($type == 'updateCard') {
   $rowids = get_link_rowids($shortlink);
 
   if (in_array($before, $trello_affecting_lists) != in_array($after, $trello_affecting_lists)){
-    //loggly_log(json_encode($rowids));
+    loggly_log(json_encode($rowids));
 
     foreach ($rowids as $rowid) {
       $newl = $oldl = '';
@@ -289,11 +289,11 @@ if ($type == 'updateCard') {
         $newa = remove_link($olda, $shortlink);
       }
 
-      //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
+      loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
       if ($newl != $oldl || $newa != $olda) {
         $data = json_encode(array("fields" => array("Trello links" => $newl, "Trello archive" => $newa)));
         update_airtable_metric($rowid, $data);
-        loggly_log(json_encode($data));
+        loggly_log($data);
       }
     }
   }
