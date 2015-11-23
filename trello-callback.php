@@ -250,10 +250,8 @@ if ($type == 'addLabelToCard' || $type == 'removeLabelFromCard') {
     echo "New: $new\n";
     if ($active)
       $data = json_encode(array("fields" => array("Trello links" => $new)));
-      //$data = "{ \"fields\": {\"Trello links\": " . json_encode($new) . "}}";
     else
       $data = json_encode(array("fields" => array("Trello archive" => $new)));
-      //$data = "{ \"fields\": {\"Trello archive\": " . json_encode($new) . "}}";
 
     update_airtable_metric($rowid, $data);
     loggly_log($data);
@@ -278,6 +276,34 @@ if ($type == 'updateCard') {
 
   $rowids = get_link_rowids($shortlink);
 
+  if (in_array($before, $trello_affecting_lists) != in_array($after, $trello_affecting_lists)){
+    loggly_log(json_encode($rowids));
+
+    foreach ($rowids as $rowid) {
+      $newl = $oldl = '';
+      $newa = $olda = '';
+      if (isset($links[$rowid])) $oldl = $links[$rowid];
+      if (isset($archive[$rowid])) $olda = $archive[$rowid];
+
+      if (in_array($before, $trello_affecting_lists) && !in_array($after, $trello_affecting_lists)){
+        loggly_log(json_encode(array("listchange" => "archive")));
+        $newl = remove_link($oldl, $shortlink);
+        $newa = add_link($olda, $shortlink);
+      } else {
+        loggly_log(json_encode(array("listchange" => "restore")));
+        $newl = add_link($oldl, $shortlink);
+        $newa = remove_link($olda, $shortlink);
+      }
+
+      //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
+      if ($newl != $oldl || $newa != $olda) {
+        $data = array("fields" => array("Trello links" => $newl, "Trello archive" => $newa));
+        loggly_log(json_encode($data));
+      }
+    }
+  }
+
+/*
   if (in_array($before, $trello_affecting_lists) && !in_array($after, $trello_affecting_lists)){
     loggly_log(json_encode(array("listchange" => "archive")));
     loggly_log(json_encode($rowids));
@@ -291,7 +317,7 @@ if ($type == 'updateCard') {
       $newl = remove_link($oldl, $shortlink);
       $newa = add_link($olda, $shortlink);
 
-      loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
+      //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
       if ($newl != $oldl || $newa != $olda) {
         $data = array("fields" => array("Trello links" => $newl, "Trello archive" => $newa));
         loggly_log(json_encode($data));
@@ -312,14 +338,14 @@ if ($type == 'updateCard') {
       $newl = add_link($oldl, $shortlink);
       $newa = remove_link($olda, $shortlink);
 
-      loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
+      //loggly_log(json_encode(array("fields" => array("tlold" => $oldl, "tlnew" => $newl, "taold" => $olda, "tanew" => $newa))));
       if ($newl != $oldl || $newa != $olda) {
         $data = array("fields" => array("Trello links" => $newl, "Trello archive" => $newa));
         loggly_log(json_encode($data));
       }
     }
   }
-
+*/
 }
 
 
